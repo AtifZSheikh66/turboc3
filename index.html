@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbo C++ 3.0 - js-dos v8</title>
     
-    <!-- js-dos v8 stylesheet and script -->
+    <!-- js-dos v8 from current docs -->
     <link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css">
     <script src="https://v8.js-dos.com/latest/js-dos.js"></script>
     
@@ -27,7 +27,7 @@
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             width: 100%;
         }
         
@@ -44,80 +44,74 @@
             box-shadow: 5px 5px 0 black;
         }
         
-        .dosbox-container {
+        #dos-container {
+            width: 100%;
+            height: 500px;
             background: black;
             border: 4px solid #00ffff;
-            padding: 0;
             margin-bottom: 20px;
             box-shadow: 8px 8px 0 black;
         }
         
-        #dos {
-            width: 100%;
-            height: 500px;
-            background: black;
-        }
-        
-        .launch-section {
-            background: black;
-            border: 4px solid #00ffff;
-            padding: 20px;
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
             margin-bottom: 20px;
-            text-align: center;
+            flex-wrap: wrap;
         }
         
-        .launch-button {
-            background: #00aa00;
-            color: white;
-            border: 4px solid white;
-            padding: 20px 40px;
+        .turbo-button {
+            background: #00aaaa;
+            color: black;
+            border: 3px solid white;
+            padding: 12px 24px;
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
-            font-size: 24px;
+            font-size: 16px;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 5px 5px 0 #00ffff;
-            transition: 0.1s;
-            margin-bottom: 15px;
-            width: 100%;
-            max-width: 400px;
+            box-shadow: 4px 4px 0 black;
+            min-width: 150px;
         }
         
-        .launch-button:active {
+        .turbo-button:hover {
+            background: #00cccc;
+        }
+        
+        .turbo-button:active {
             transform: translate(2px, 2px);
-            box-shadow: 3px 3px 0 #00ffff;
+            box-shadow: 2px 2px 0 black;
         }
         
-        .launch-button:disabled {
-            background: #666666;
-            cursor: not-allowed;
-            opacity: 0.7;
+        .turbo-button.green {
+            background: #00aa00;
+            color: white;
         }
         
         .status-panel {
             background: black;
             border: 4px solid #00ffff;
             padding: 15px;
-            margin-bottom: 20px;
+            color: #00ff00;
+            margin-bottom: 15px;
         }
         
         .status-title {
             color: #ffff00;
-            font-weight: bold;
             margin-bottom: 10px;
             font-size: 18px;
+            font-weight: bold;
         }
         
-        #statusMessage {
-            color: #00ff00;
-            font-size: 16px;
+        #status {
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
             line-height: 1.5;
             min-height: 80px;
             padding: 10px;
             background: #001100;
             border: 2px solid #00aaaa;
-            white-space: pre-wrap;
-            font-family: 'Courier New', Courier, monospace;
         }
         
         .error-panel {
@@ -125,29 +119,26 @@
             border: 4px solid #ff0000;
             padding: 15px;
             display: none;
-            margin-bottom: 20px;
         }
         
         .error-title {
             color: #ff5555;
-            font-weight: bold;
             margin-bottom: 10px;
             font-size: 18px;
+            font-weight: bold;
         }
         
-        #errorMessage {
+        #error {
             color: #ff8888;
-            font-size: 16px;
-            line-height: 1.5;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
             padding: 10px;
             background: #220000;
             border: 2px solid #ff0000;
-            white-space: pre-wrap;
-            font-family: 'Courier New', Courier, monospace;
         }
         
         .footer {
-            color: #ffffff;
+            color: white;
             text-align: center;
             margin-top: 10px;
         }
@@ -159,72 +150,82 @@
             TURBO C++ 3.0 - js-dos v8
         </div>
         
-        <div class="dosbox-container">
-            <div id="dos"></div>
-        </div>
+        <!-- DOS container - exactly as docs specify -->
+        <div id="dos-container"></div>
         
-        <div class="launch-section">
-            <button class="launch-button" id="launchBtn" onclick="launchTurboC()">🚀 LAUNCH TURBO C++</button>
+        <div class="controls">
+            <button class="turbo-button" onclick="launchTurboC()" id="launchBtn">🚀 LAUNCH TC++</button>
+            <button class="turbo-button" onclick="mountDrives()">💾 MOUNT DRIVES</button>
+            <button class="turbo-button green" onclick="fullscreen()">⛶ FULLSCREEN</button>
+            <button class="turbo-button" onclick="reset()">🔄 RESET</button>
         </div>
         
         <div class="status-panel">
             <div class="status-title">📊 STATUS</div>
-            <div id="statusMessage">Initializing js-dos...</div>
+            <div id="status">Initializing js-dos v8...</div>
         </div>
         
         <div class="error-panel" id="errorPanel">
             <div class="error-title">❌ ERROR</div>
-            <div id="errorMessage"></div>
+            <div id="error"></div>
         </div>
         
         <div class="footer">
-            Turbo C++ 3.0 requires /tc30/BIN/TC.EXE in your repository
+            Using js-dos v8 | Turbo C++ 3.0 files in /tc30/BIN/TC.EXE
         </div>
     </div>
 
     <script>
-        let dosInstance = null;
-        let isLaunching = false;
+        // Use the exact API from current docs
+        let dos = null;
+        let ci = null;
         
-        const statusEl = document.getElementById('statusMessage');
+        const statusEl = document.getElementById('status');
         const errorPanel = document.getElementById('errorPanel');
-        const errorMsg = document.getElementById('errorMessage');
+        const errorEl = document.getElementById('error');
         const launchBtn = document.getElementById('launchBtn');
         
         function updateStatus(msg) {
-            const timestamp = new Date().toLocaleTimeString();
-            statusEl.innerText = `[${timestamp}] ${msg}`;
+            statusEl.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
             console.log('Status:', msg);
         }
         
         function showError(msg) {
-            errorMsg.innerText = msg;
+            errorEl.innerText = msg;
             errorPanel.style.display = 'block';
-            updateStatus('❌ ERROR - Check error panel');
+            updateStatus('ERROR - Check error panel');
         }
         
         function hideError() {
             errorPanel.style.display = 'none';
         }
         
-        // Initialize js-dos
+        // Initialize exactly as docs show
         window.addEventListener('load', function() {
-            updateStatus('Loading js-dos v8...');
+            updateStatus('Creating DOS instance...');
             
             try {
-                const dosElement = document.getElementById('dos');
+                // Get the container element
+                const container = document.getElementById('dos-container');
                 
-                // Initialize Dos with the div element
-                // We're not providing a URL yet - we'll do that manually with commands
-                dosInstance = Dos(dosElement, {
+                // Create dos instance - exactly as documentation
+                dos = Dos(container, {
                     onload: () => {
-                        updateStatus('✅ js-dos loaded successfully. Click LAUNCH to start Turbo C++.');
+                        updateStatus('js-dos loaded successfully');
                         launchBtn.disabled = false;
                         hideError();
+                        
+                        // Now we have command interface
+                        ci = dos;
+                        
+                        // Initial setup - mount drive
+                        setTimeout(() => {
+                            updateStatus('Ready. Click LAUNCH to start Turbo C++');
+                        }, 1000);
                     },
                     onerror: (error) => {
                         console.error('Dos error:', error);
-                        showError('Failed to load js-dos: ' + (error.message || 'Unknown error'));
+                        showError('Failed to load js-dos: ' + error);
                         launchBtn.disabled = true;
                     }
                 });
@@ -232,130 +233,106 @@
                 updateStatus('js-dos initializing...');
                 
             } catch (e) {
-                console.error('Initialization error:', e);
-                showError('Failed to initialize: ' + e.message);
+                console.error('Init error:', e);
+                showError('Initialization failed: ' + e.message);
                 launchBtn.disabled = true;
             }
         });
         
         function launchTurboC() {
-            if (!dosInstance) {
-                showError('js-dos not initialized. Please refresh the page.');
+            if (!dos) {
+                showError('DOS not initialized');
                 return;
             }
             
-            if (isLaunching) {
-                updateStatus('Already launching... please wait');
-                return;
-            }
+            updateStatus('Launching Turbo C++ 3.0...');
             
-            isLaunching = true;
-            launchBtn.disabled = true;
-            hideError();
+            // Mount C drive and start TC
+            const commands = [
+                'mount c /tc30',
+                'c:',
+                'cd tc30\\bin',
+                'tc.exe'
+            ];
             
-            updateStatus('🚀 Starting Turbo C++ launch sequence...');
-            
-            // Wait a moment for dos to be ready
-            setTimeout(() => {
-                try {
-                    // Step 1: Mount C drive
-                    updateStatus('Step 1/4: Mounting C: drive to /tc30...');
-                    dosInstance.focus();
+            let delay = 1000;
+            commands.forEach((cmd, index) => {
+                setTimeout(() => {
+                    updateStatus(`Executing: ${cmd}`);
                     
-                    // Type mount command
-                    typeCommand('mount c /tc30', () => {
-                        
-                        // Step 2: Switch to C:
+                    // Focus and type each character
+                    dos.focus();
+                    
+                    for (let i = 0; i < cmd.length; i++) {
                         setTimeout(() => {
-                            updateStatus('Step 2/4: Switching to C: drive...');
-                            typeCommand('c:', () => {
-                                
-                                // Step 3: Go to BIN directory
-                                setTimeout(() => {
-                                    updateStatus('Step 3/4: Opening BIN directory...');
-                                    typeCommand('cd tc30\\bin', () => {
-                                        
-                                        // Step 4: Launch TC.EXE
-                                        setTimeout(() => {
-                                            updateStatus('Step 4/4: Launching Turbo C++ (TC.EXE)...');
-                                            typeCommand('tc.exe', () => {
-                                                
-                                                // Final status
-                                                setTimeout(() => {
-                                                    updateStatus('✅ Turbo C++ launched! Click inside DOS window to interact.\n' +
-                                                               'If you see a blank screen, press Alt+Enter for fullscreen.');
-                                                    launchBtn.disabled = false;
-                                                    isLaunching = false;
-                                                }, 2000);
-                                            });
-                                        }, 1000);
-                                    });
-                                }, 1000);
-                            });
-                        }, 1000);
-                    });
+                            dos.sendKey(cmd[i]);
+                        }, i * 50);
+                    }
                     
-                } catch (e) {
-                    showError('Launch error: ' + e.message);
-                    launchBtn.disabled = false;
-                    isLaunching = false;
-                }
-                
-            }, 2000);
+                    setTimeout(() => {
+                        dos.sendKey('Enter');
+                    }, cmd.length * 50 + 100);
+                    
+                }, delay);
+                delay += 2000;
+            });
             
-            // Timeout protection
             setTimeout(() => {
-                if (isLaunching) {
-                    showError('⏰ Launch timeout after 20 seconds.\n\n' +
-                             'Make sure your repository has this structure:\n' +
-                             '📁 /tc30/BIN/TC.EXE\n' +
-                             '📁 /tc30/INCLUDE/\n' +
-                             '📁 /tc30/LIB/\n\n' +
-                             'If files are missing, Turbo C++ will not start.');
-                    launchBtn.disabled = false;
-                    isLaunching = false;
-                }
-            }, 20000);
+                updateStatus('Turbo C++ launching... Click inside DOS window to interact');
+            }, delay);
         }
         
-        // Helper function to type a command
-        function typeCommand(cmd, callback) {
-            if (!dosInstance) return;
+        function mountDrives() {
+            if (!dos) return;
             
-            // Focus the dos window
-            dosInstance.focus();
+            updateStatus('Mounting drives manually...');
+            dos.focus();
             
-            // Type each character with a small delay
+            const cmd = 'mount c /tc30';
             for (let i = 0; i < cmd.length; i++) {
                 setTimeout(() => {
-                    dosInstance.sendKey(cmd[i]);
+                    dos.sendKey(cmd[i]);
                 }, i * 50);
             }
             
-            // Press Enter after the command
             setTimeout(() => {
-                dosInstance.sendKey('Enter');
-                if (callback) callback();
-            }, cmd.length * 50 + 200);
+                dos.sendKey('Enter');
+                updateStatus('C: drive mounted');
+            }, cmd.length * 50 + 100);
         }
         
-        // Helper to send key combinations
-        function sendKeyCombo(key1, key2) {
-            if (!dosInstance) return;
+        function fullscreen() {
+            if (!dos) return;
             
-            dosInstance.focus();
-            dosInstance.sendKey(key1);
+            dos.focus();
+            dos.sendKey('alt');
             setTimeout(() => {
-                dosInstance.sendKey(key2);
+                dos.sendKey('enter');
                 setTimeout(() => {
-                    dosInstance.sendKey(key1); // Release
+                    dos.sendKey('alt');
                 }, 200);
             }, 200);
+            
+            updateStatus('Toggled fullscreen');
         }
         
-        // Android detection
-        if (/Android/i.test(navigator.userAgent)) {
-            updateStatus('📱 Android detected - Use external keyboard or on-screen keys');
+        function reset() {
+            if (!dos) return;
+            
+            updateStatus('Resetting DOS...');
+            
+            // Simulate Ctrl+Alt+Del or just reload
+            dos.focus();
+            dos.sendKey('ctrl');
+            dos.sendKey('alt');
+            setTimeout(() => {
+                dos.sendKey('del');
+                setTimeout(() => {
+                    dos.sendKey('ctrl');
+                    dos.sendKey('alt');
+                    updateStatus('Reset complete');
+                }, 500);
+            }, 500);
         }
     </script>
 </body>
