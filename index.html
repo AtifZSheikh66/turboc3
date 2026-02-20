@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>js-dos Turbo C++ with Android Keyboard</title>
+    <title>Turbo C++ - js-dos</title>
 
     <style>
         html, body {
@@ -10,9 +10,9 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            touch-action: none;
             position: fixed;
             width: 100%;
+            background: #0000aa;
         }
 
         #dos {
@@ -21,385 +21,27 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 1;
-        }
-
-        /* Floating Keyboard Button */
-        .floating-keyboard-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: #00aa00;
-            color: white;
-            border: 4px solid white;
-            font-size: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Hidden input to trigger Android keyboard */
-        #hiddenKeyboardInput {
-            position: fixed;
-            top: -100px;
-            left: -100px;
-            opacity: 0;
-            height: 0;
-            width: 0;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* Function Keys Row */
-        .function-keys {
-            position: fixed;
-            bottom: 120px;
-            right: 30px;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 1000;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 20px;
-            border: 3px solid white;
-            backdrop-filter: blur(5px);
-            max-width: 200px;
-        }
-
-        .function-keys.show {
-            display: flex;
-        }
-
-        .function-row {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .fn-btn {
-            background: #00aaaa;
-            color: black;
-            border: 2px solid white;
-            border-radius: 15px;
-            padding: 12px 15px;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            min-width: 50px;
-            text-align: center;
-            box-shadow: 2px 2px 0 black;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .fn-btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: none;
-        }
-
-        .fn-btn.special {
-            background: #aa5500;
-            color: white;
-        }
-
-        /* Keyboard indicator */
-        .keyboard-indicator {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #00aa00;
-            color: white;
-            padding: 8px 15px;
-            border: 2px solid white;
-            border-radius: 30px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .keyboard-indicator.show {
-            display: flex;
-        }
-
-        .keyboard-indicator .dot {
-            width: 12px;
-            height: 12px;
-            background: #00ff00;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-
-        @media (max-width: 768px) {
-            .floating-keyboard-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 25px;
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            .function-keys {
-                bottom: 100px;
-                right: 20px;
-                padding: 10px;
-            }
-            
-            .fn-btn {
-                padding: 10px 12px;
-                font-size: 14px;
-                min-width: 40px;
-            }
         }
     </style>
 
-    <!-- js-dos style sheet -->
+    <!-- js-dos stylesheet and script -->
     <link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css">
-    <!-- js-dos -->
     <script src="https://v8.js-dos.com/latest/js-dos.js"></script>
 </head>
 <body>
-
     <div id="dos"></div>
-    
-    <!-- Hidden input for Android keyboard -->
-    <input type="text" id="hiddenKeyboardInput" inputmode="text" autocomplete="off">
-    
-    <!-- Keyboard Indicator -->
-    <div class="keyboard-indicator" id="keyboardIndicator">
-        <span class="dot"></span>
-        <span>Keyboard Active</span>
-    </div>
-    
-    <!-- Floating Keyboard Button -->
-    <div class="floating-keyboard-btn" id="keyboardBtn">⌨️</div>
-    
-    <!-- Function Keys Row -->
-    <div class="function-keys" id="functionKeys">
-        <div class="function-row">
-            <div class="fn-btn" onclick="sendDosKey('escape')">Esc</div>
-            <div class="fn-btn" onclick="sendDosKey('f1')">F1</div>
-            <div class="fn-btn" onclick="sendDosKey('f2')">F2</div>
-            <div class="fn-btn" onclick="sendDosKey('f3')">F3</div>
-            <div class="fn-btn" onclick="sendDosKey('f4')">F4</div>
-        </div>
-        <div class="function-row">
-            <div class="fn-btn" onclick="sendDosKey('f5')">F5</div>
-            <div class="fn-btn" onclick="sendDosKey('f6')">F6</div>
-            <div class="fn-btn" onclick="sendDosKey('f7')">F7</div>
-            <div class="fn-btn" onclick="sendDosKey('f8')">F8</div>
-            <div class="fn-btn" onclick="sendDosKey('f9')">F9</div>
-        </div>
-        <div class="function-row">
-            <div class="fn-btn" onclick="sendDosKey('f10')">F10</div>
-            <div class="fn-btn special" onclick="sendKeyCombo('alt', 'f9')">Alt+F9</div>
-            <div class="fn-btn special" onclick="sendKeyCombo('ctrl', 'f9')">Ctrl+F9</div>
-        </div>
-        <div class="function-row">
-            <div class="fn-btn special" onclick="sendKeyCombo('alt', 'f5')">Alt+F5</div>
-            <div class="fn-btn" onclick="sendDosKey('enter')">Enter</div>
-            <div class="fn-btn" onclick="sendDosKey('backspace')">⌫</div>
-        </div>
-    </div>
 
     <script>
-        let dosInstance = null;
-        let keyboardActive = false;
-        let currentInput = '';
-        
-        // Get elements
-        const hiddenInput = document.getElementById('hiddenKeyboardInput');
-        const keyboardBtn = document.getElementById('keyboardBtn');
-        const functionKeys = document.getElementById('functionKeys');
-        const keyboardIndicator = document.getElementById('keyboardIndicator');
-        
-        // Initialize DOS
-        dosInstance = Dos(document.getElementById("dos"), {
+        // Initialize DOS with your bundle
+        Dos(document.getElementById("dos"), {
+            url: "./turboc.jsdos", // Path to your bundle
             onload: () => {
-                console.log('js-dos loaded');
+                console.log('Turbo C++ loaded successfully');
             },
             onerror: (error) => {
-                console.error('js-dos error:', error);
+                console.error('Error loading Turbo C++:', error);
             }
         });
-        
-        // Toggle keyboard
-        keyboardBtn.addEventListener('click', () => {
-            toggleKeyboard();
-        });
-        
-        // Long press for function keys
-        let pressTimer;
-        keyboardBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            pressTimer = setTimeout(() => {
-                functionKeys.classList.toggle('show');
-                if (navigator.vibrate) navigator.vibrate(30);
-            }, 500);
-        });
-        
-        keyboardBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            clearTimeout(pressTimer);
-        });
-        
-        keyboardBtn.addEventListener('touchcancel', (e) => {
-            e.preventDefault();
-            clearTimeout(pressTimer);
-        });
-        
-        function toggleKeyboard() {
-            keyboardActive = !keyboardActive;
-            
-            if (keyboardActive) {
-                // Show keyboard indicator
-                keyboardIndicator.classList.add('show');
-                keyboardBtn.style.background = '#aa5500';
-                
-                // Focus hidden input to trigger Android keyboard
-                hiddenInput.focus();
-                
-                // Listen for input events
-                hiddenInput.addEventListener('input', handleAndroidInput);
-                hiddenInput.addEventListener('keydown', handleAndroidKeyDown);
-                
-            } else {
-                // Hide keyboard indicator
-                keyboardIndicator.classList.remove('show');
-                keyboardBtn.style.background = '#00aa00';
-                
-                // Remove listeners
-                hiddenInput.removeEventListener('input', handleAndroidInput);
-                hiddenInput.removeEventListener('keydown', handleAndroidKeyDown);
-                
-                // Clear input
-                hiddenInput.value = '';
-            }
-        }
-        
-        function handleAndroidInput(e) {
-            const value = e.target.value;
-            
-            // Send new characters to DOS
-            if (value.length > currentInput.length) {
-                // Get the new character(s)
-                const newChars = value.substring(currentInput.length);
-                
-                // Send each character to DOS
-                for (let char of newChars) {
-                    sendDosKey(char);
-                }
-            }
-            
-            currentInput = value;
-        }
-        
-        function handleAndroidKeyDown(e) {
-            // Handle special keys
-            switch(e.key) {
-                case 'Enter':
-                    e.preventDefault();
-                    sendDosKey('enter');
-                    break;
-                case 'Backspace':
-                    e.preventDefault();
-                    sendDosKey('backspace');
-                    break;
-                case 'Tab':
-                    e.preventDefault();
-                    sendDosKey('tab');
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    sendDosKey('up');
-                    break;
-                case 'ArrowDown':
-                    e.preventDefault();
-                    sendDosKey('down');
-                    break;
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    sendDosKey('left');
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    sendDosKey('right');
-                    break;
-                default:
-                    // Let input handle normal characters
-                    break;
-            }
-        }
-        
-        function sendDosKey(key) {
-            if (!dosInstance) return;
-            
-            dosInstance.focus();
-            dosInstance.sendKey(key);
-            
-            // Vibrate on keypress
-            if (navigator.vibrate) navigator.vibrate(10);
-        }
-        
-        function sendKeyCombo(modifier, key) {
-            if (!dosInstance) return;
-            
-            dosInstance.focus();
-            
-            // Press modifier
-            dosInstance.sendKey(modifier);
-            
-            // Press key after short delay
-            setTimeout(() => {
-                dosInstance.sendKey(key);
-                
-                // Release modifier after another delay
-                setTimeout(() => {
-                    dosInstance.sendKey(modifier);
-                }, 150);
-            }, 100);
-            
-            if (navigator.vibrate) navigator.vibrate(20);
-        }
-        
-        // Prevent context menu
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
-        
-        // Handle back button
-        window.addEventListener('popstate', () => {
-            if (keyboardActive) toggleKeyboard();
-            if (functionKeys.classList.contains('show')) {
-                functionKeys.classList.remove('show');
-            }
-            history.pushState(null, null, location.href);
-        });
-        history.pushState(null, null, location.href);
-        
-        // Android detection
-        if (/Android/i.test(navigator.userAgent)) {
-            document.body.style.touchAction = 'none';
-            setTimeout(() => {
-                alert('📱 Tap the green keyboard button to type');
-            }, 1000);
-        }
     </script>
 </body>
 </html>
