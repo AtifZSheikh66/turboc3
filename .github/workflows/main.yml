@@ -1,4 +1,4 @@
-name: Extract Zip to Root and Commit
+name: Extract and Commit with PAT
 
 on:
   push:
@@ -12,21 +12,21 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.PAT_TOKEN }}  # Use PAT instead of default token
     
     - name: Install unzip
       run: sudo apt-get update && sudo apt-get install -y unzip
     
     - name: Extract zip to root
       run: |
-        # Extract directly to current directory
         unzip -o tc30.zip
-        echo "Extracted files:"
         ls -la
     
     - name: Commit and push changes
       run: |
-        git config --global user.name 'github-actions'
-        git config --global user.email 'github-actions@github.com'
+        git config --global user.name 'Your Name'
+        git config --global user.email 'your-email@example.com'
         git add .
-        git commit -m "Extracted zip files" || echo "No changes to commit"
+        git diff --quiet && git diff --staged --quiet || git commit -m "Extracted zip files"
         git push
