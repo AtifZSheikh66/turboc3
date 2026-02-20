@@ -2,176 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turbo C++ 3.0 - js-dos Bundle</title>
-    
-    <!-- js-dos v8 -->
-    <link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css">
-    <script src="https://v8.js-dos.com/latest/js-dos.js"></script>
-    
+    <title>js-dos digger 8.xx</title>
+
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            background: #0000aa;
-            font-family: 'Courier New', monospace;
+        html, body {
+            height: 100%;
         }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: #00aaaa;
-            color: black;
-            padding: 15px;
-            border: 3px solid white;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-        
-        #dos-container {
+
+        #dos {
             width: 100%;
-            height: 500px;
-            background: black;
-            border: 4px solid #00ffff;
-            box-shadow: 8px 8px 0 black;
-        }
-        
-        .status {
-            background: black;
-            color: #00ff00;
-            padding: 15px;
-            border: 4px solid #00ffff;
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-        }
-        
-        .error {
-            background: black;
-            color: #ff5555;
-            padding: 15px;
-            border: 4px solid #ff0000;
-            margin-top: 20px;
-            display: none;
-            white-space: pre-wrap;
-        }
-        
-        button {
-            background: #00aaaa;
-            color: black;
-            border: 3px solid white;
-            padding: 10px 20px;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px 5px;
-        }
-        
-        button:hover {
-            background: #00cccc;
+            height: 100%;
         }
     </style>
+
+    <!-- js-dos style sheet -->
+    <link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css">
+
+    <!-- js-dos -->
+    <script src="https://v8.js-dos.com/latest/js-dos.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            🚀 TURBO C++ 3.0 - js-dos BUNDLE
-        </div>
-        
-        <div id="dos-container"></div>
-        
-        <div style="text-align: center; margin: 20px 0;">
-            <button onclick="startTurboC()">🎮 START TURBO C++</button>
-            <button onclick="fullscreen()">⛶ FULLSCREEN</button>
-        </div>
-        
-        <div class="status" id="status">
-            Initializing js-dos...
-        </div>
-        
-        <div class="error" id="error"></div>
-    </div>
+
+    <div id="dos" style="width: 100%; height: 100%"></div>
 
     <script>
-        let dos = null;
-        
-        
-        const statusEl = document.getElementById('status');
-        const errorEl = document.getElementById('error');
-        
-        function updateStatus(msg) {
-            statusEl.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        }
-        
-        function showError(msg) {
-            errorEl.style.display = 'block';
-            errorEl.innerText = `❌ ERROR: ${msg}`;
-            updateStatus('Failed - check error below');
-        }
-        
-        // Initialize js-dos
-        window.addEventListener('load', function() {
-            updateStatus('Loading js-dos v8...');
-            
-            try {
-                const container = document.getElementById('dos-container');
-                
-                // Create dos instance
-                dos = Dos(container, {
-                    onload: () => {
-                        updateStatus('js-dos loaded. Click START to launch Turbo C++');
-                    },
-                    onerror: (error) => {
-                        showError('Failed to load: ' + error);
-                    }
-                });
-                
-            } catch (e) {
-                showError(e.message);
-            }
+        Dos(document.getElementById("dos"), {
+            //url: "https://v8.js-dos.com/bundles/digger.jsdos",
         });
-        
-        function startTurboC() {
-            if (!dos) {
-                showError('DOS not initialized');
-                return;
-            }
-            
-            updateStatus('Loading Turbo C++ bundle...');
-            
-            // Run the bundle - IMPORTANT: You need to host turboc.jsdos
-            // Option 1: If bundle is in same folder as HTML
-            const bundleUrl = './turboc.jsdos';
-            
-            // Option 2: If using GitHub Pages with raw URL
-            // const bundleUrl = 'https://yourusername.github.io/repo/turboc.jsdos';
-            
-            dos.run(bundleUrl).then((ciInstance) => {
-                ci = ciInstance;
-                updateStatus('✅ Turbo C++ 3.0 running!');
-                
-                // Optional: Get bundle config
-                ci.config().then(config => {
-                    console.log('Bundle config:', config);
-                });
-                
-            }).catch(error => {
-                showError('Failed to run bundle: ' + error);
-            });
-        }
-        
-        function fullscreen() {
-            if (dos) {
-                dos.requestFullscreen();
-            }
-        }
     </script>
 </body>
 </html>
