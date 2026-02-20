@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turbo C++ 3.0 - One Click Launch</title>
+    <title>Turbo C++ 3.0 - js-dos v8</title>
+    
+    <!-- js-dos v8 stylesheet and script -->
+    <link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css">
+    <script src="https://v8.js-dos.com/latest/js-dos.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -22,7 +27,7 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             width: 100%;
         }
         
@@ -43,22 +48,21 @@
             background: black;
             border: 4px solid #00ffff;
             padding: 0;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             box-shadow: 8px 8px 0 black;
-            width: 100%;
-            height: 400px;
         }
         
-        #dosbox {
+        #dos {
             width: 100%;
-            height: 100%;
+            height: 500px;
+            background: black;
         }
         
         .launch-section {
             background: black;
             border: 4px solid #00ffff;
             padding: 20px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: center;
         }
         
@@ -94,7 +98,7 @@
             background: black;
             border: 4px solid #00ffff;
             padding: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         .status-title {
@@ -108,7 +112,7 @@
             color: #00ff00;
             font-size: 16px;
             line-height: 1.5;
-            min-height: 60px;
+            min-height: 80px;
             padding: 10px;
             background: #001100;
             border: 2px solid #00aaaa;
@@ -121,6 +125,7 @@
             border: 4px solid #ff0000;
             padding: 15px;
             display: none;
+            margin-bottom: 20px;
         }
         
         .error-title {
@@ -141,45 +146,30 @@
             font-family: 'Courier New', Courier, monospace;
         }
         
-        .fullscreen-btn {
-            background: #aaaa00;
-            color: black;
-            border: 3px solid white;
-            padding: 8px 16px;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
         .footer {
             color: #ffffff;
             text-align: center;
             margin-top: 10px;
         }
     </style>
-    <!-- Use the correct js-dos CDN -->
-    <script src="https://js-dos.com/6.0.0/emulators/js-dos.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            TURBO C++ 3.0 - REAL DOSBOX
+            TURBO C++ 3.0 - js-dos v8
         </div>
         
         <div class="dosbox-container">
-            <div id="dosbox"></div>
+            <div id="dos"></div>
         </div>
         
         <div class="launch-section">
             <button class="launch-button" id="launchBtn" onclick="launchTurboC()">🚀 LAUNCH TURBO C++</button>
-            <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ TOGGLE FULLSCREEN</button>
         </div>
         
         <div class="status-panel">
             <div class="status-title">📊 STATUS</div>
-            <div id="statusMessage">Initializing DOSBox...</div>
+            <div id="statusMessage">Initializing js-dos...</div>
         </div>
         
         <div class="error-panel" id="errorPanel">
@@ -188,12 +178,12 @@
         </div>
         
         <div class="footer">
-            Turbo C++ 3.0 running in DOSBox | Files required: /tc30/BIN/TC.EXE
+            Turbo C++ 3.0 requires /tc30/BIN/TC.EXE in your repository
         </div>
     </div>
 
     <script>
-        let emulator = null;
+        let dosInstance = null;
         let isLaunching = false;
         
         const statusEl = document.getElementById('statusMessage');
@@ -202,53 +192,55 @@
         const launchBtn = document.getElementById('launchBtn');
         
         function updateStatus(msg) {
-            statusEl.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            const timestamp = new Date().toLocaleTimeString();
+            statusEl.innerText = `[${timestamp}] ${msg}`;
             console.log('Status:', msg);
         }
         
         function showError(msg) {
             errorMsg.innerText = msg;
             errorPanel.style.display = 'block';
-            updateStatus('ERROR - Check error panel');
+            updateStatus('❌ ERROR - Check error panel');
         }
         
         function hideError() {
             errorPanel.style.display = 'none';
         }
         
-        // Initialize DOSBox
+        // Initialize js-dos
         window.addEventListener('load', function() {
-            updateStatus('Loading DOSBox emulator...');
+            updateStatus('Loading js-dos v8...');
             
             try {
-                // Create DOSBox instance using the global Dosbox constructor
-                const canvas = document.getElementById('dosbox');
+                const dosElement = document.getElementById('dos');
                 
-                // The correct API for js-dos 6.0
-                emulator = new Dosbox(canvas, {
-                    onload: function() {
-                        updateStatus('DOSBox loaded successfully. Ready to launch Turbo C++.');
+                // Initialize Dos with the div element
+                // We're not providing a URL yet - we'll do that manually with commands
+                dosInstance = Dos(dosElement, {
+                    onload: () => {
+                        updateStatus('✅ js-dos loaded successfully. Click LAUNCH to start Turbo C++.');
                         launchBtn.disabled = false;
                         hideError();
                     },
-                    onrun: function() {
-                        updateStatus('DOSBox is running');
+                    onerror: (error) => {
+                        console.error('Dos error:', error);
+                        showError('Failed to load js-dos: ' + (error.message || 'Unknown error'));
+                        launchBtn.disabled = true;
                     }
                 });
                 
-                // Start the emulator
-                emulator.run();
+                updateStatus('js-dos initializing...');
                 
             } catch (e) {
                 console.error('Initialization error:', e);
-                showError('Failed to initialize DOSBox: ' + e.message + '\n\nPlease refresh the page.');
+                showError('Failed to initialize: ' + e.message);
                 launchBtn.disabled = true;
             }
         });
         
         function launchTurboC() {
-            if (!emulator) {
-                showError('DOSBox not initialized. Please refresh the page.');
+            if (!dosInstance) {
+                showError('js-dos not initialized. Please refresh the page.');
                 return;
             }
             
@@ -261,73 +253,109 @@
             launchBtn.disabled = true;
             hideError();
             
-            updateStatus('Starting Turbo C++ launch sequence...');
+            updateStatus('🚀 Starting Turbo C++ launch sequence...');
             
-            // Small delay to ensure DOSBox is ready
+            // Wait a moment for dos to be ready
             setTimeout(() => {
                 try {
                     // Step 1: Mount C drive
-                    updateStatus('Step 1/4: Mounting C: drive...');
-                    emulator.sendString('mount c /tc30\n');
+                    updateStatus('Step 1/4: Mounting C: drive to /tc30...');
+                    dosInstance.focus();
                     
-                    // Step 2: Switch to C:
-                    setTimeout(() => {
-                        updateStatus('Step 2/4: Switching to C: drive...');
-                        emulator.sendString('c:\n');
-                    }, 1500);
-                    
-                    // Step 3: Go to BIN directory
-                    setTimeout(() => {
-                        updateStatus('Step 3/4: Opening BIN directory...');
-                        emulator.sendString('cd tc30\\bin\n');
-                    }, 3000);
-                    
-                    // Step 4: Launch TC.EXE
-                    setTimeout(() => {
-                        updateStatus('Step 4/4: Launching Turbo C++...');
-                        emulator.sendString('tc.exe\n');
+                    // Type mount command
+                    typeCommand('mount c /tc30', () => {
                         
-                        // Check if it worked
+                        // Step 2: Switch to C:
                         setTimeout(() => {
-                            updateStatus('Turbo C++ launched! If you see a blank screen, click inside the DOSBox window.');
-                            launchBtn.disabled = false;
-                            isLaunching = false;
-                        }, 3000);
-                        
-                    }, 4500);
+                            updateStatus('Step 2/4: Switching to C: drive...');
+                            typeCommand('c:', () => {
+                                
+                                // Step 3: Go to BIN directory
+                                setTimeout(() => {
+                                    updateStatus('Step 3/4: Opening BIN directory...');
+                                    typeCommand('cd tc30\\bin', () => {
+                                        
+                                        // Step 4: Launch TC.EXE
+                                        setTimeout(() => {
+                                            updateStatus('Step 4/4: Launching Turbo C++ (TC.EXE)...');
+                                            typeCommand('tc.exe', () => {
+                                                
+                                                // Final status
+                                                setTimeout(() => {
+                                                    updateStatus('✅ Turbo C++ launched! Click inside DOS window to interact.\n' +
+                                                               'If you see a blank screen, press Alt+Enter for fullscreen.');
+                                                    launchBtn.disabled = false;
+                                                    isLaunching = false;
+                                                }, 2000);
+                                            });
+                                        }, 1000);
+                                    });
+                                }, 1000);
+                            });
+                        }, 1000);
+                    });
                     
                 } catch (e) {
-                    showError('Failed during launch: ' + e.message);
+                    showError('Launch error: ' + e.message);
                     launchBtn.disabled = false;
                     isLaunching = false;
                 }
                 
-            }, 1000);
+            }, 2000);
             
             // Timeout protection
             setTimeout(() => {
                 if (isLaunching) {
-                    showError('Launch timeout after 15 seconds.\n\nMake sure your folder structure is:\n/tc30/BIN/TC.EXE\n/tc30/INCLUDE/\n/tc30/LIB/');
+                    showError('⏰ Launch timeout after 20 seconds.\n\n' +
+                             'Make sure your repository has this structure:\n' +
+                             '📁 /tc30/BIN/TC.EXE\n' +
+                             '📁 /tc30/INCLUDE/\n' +
+                             '📁 /tc30/LIB/\n\n' +
+                             'If files are missing, Turbo C++ will not start.');
                     launchBtn.disabled = false;
                     isLaunching = false;
                 }
-            }, 15000);
+            }, 20000);
         }
         
-        function toggleFullscreen() {
-            if (!emulator) return;
+        // Helper function to type a command
+        function typeCommand(cmd, callback) {
+            if (!dosInstance) return;
             
-            try {
-                emulator.sendKey('alt', 'enter');
-                updateStatus('Toggled fullscreen mode');
-            } catch (e) {
-                showError('Failed to toggle fullscreen: ' + e.message);
+            // Focus the dos window
+            dosInstance.focus();
+            
+            // Type each character with a small delay
+            for (let i = 0; i < cmd.length; i++) {
+                setTimeout(() => {
+                    dosInstance.sendKey(cmd[i]);
+                }, i * 50);
             }
+            
+            // Press Enter after the command
+            setTimeout(() => {
+                dosInstance.sendKey('Enter');
+                if (callback) callback();
+            }, cmd.length * 50 + 200);
         }
         
-        // Detect Android for status message
+        // Helper to send key combinations
+        function sendKeyCombo(key1, key2) {
+            if (!dosInstance) return;
+            
+            dosInstance.focus();
+            dosInstance.sendKey(key1);
+            setTimeout(() => {
+                dosInstance.sendKey(key2);
+                setTimeout(() => {
+                    dosInstance.sendKey(key1); // Release
+                }, 200);
+            }, 200);
+        }
+        
+        // Android detection
         if (/Android/i.test(navigator.userAgent)) {
-            updateStatus('Android detected - Use fullscreen button for better view');
+            updateStatus('📱 Android detected - Use external keyboard or on-screen keys');
         }
     </script>
 </body>
