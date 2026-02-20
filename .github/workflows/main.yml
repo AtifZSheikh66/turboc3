@@ -19,7 +19,7 @@ jobs:
     - name: Extract zip to root
       run: |
         # Extract directly to current directory (root of workspace)
-        unzip -o turboc3.zip
+        unzip -o tc30.zip
     
     - name: Show extracted files in root
       run: ls -la
