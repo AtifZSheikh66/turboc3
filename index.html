@@ -2,16 +2,216 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>js-dos digger 8.xx</title>
+    <title>js-dos Turbo C++ with Android Controls</title>
 
     <style>
         html, body {
             height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none; /* Prevent browser gestures */
         }
 
         #dos {
             width: 100%;
             height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Floating Keyboard Button */
+        .floating-keyboard-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #00aa00;
+            color: white;
+            border: 4px solid white;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s;
+        }
+
+        .floating-keyboard-btn:active {
+            transform: scale(0.95);
+            background: #00cc00;
+        }
+
+        /* Cursor Pad Container */
+        .cursor-pad {
+            position: fixed;
+            bottom: 120px;
+            right: 30px;
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 170, 170, 0.9);
+            border: 4px solid white;
+            border-radius: 50%;
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .cursor-pad.show {
+            display: grid;
+        }
+
+        .pad-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid white;
+            border-radius: 10px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.1s;
+        }
+
+        .pad-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+
+        .pad-btn.empty {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Function Keys Row (appears when keyboard is open) */
+        .function-keys {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 8px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 40px;
+            border: 3px solid white;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        .function-keys.show {
+            display: flex;
+        }
+
+        .fn-btn {
+            background: #00aaaa;
+            color: black;
+            border: 2px solid white;
+            border-radius: 25px;
+            padding: 10px 15px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 45px;
+            text-align: center;
+            box-shadow: 2px 2px 0 black;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .fn-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+
+        .fn-btn.special {
+            background: #aa5500;
+            color: white;
+        }
+
+        /* Close button for cursor pad */
+        .close-pad {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: red;
+            color: white;
+            border: 3px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Android detection message */
+        .android-badge {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #00aa00;
+            color: white;
+            padding: 5px 10px;
+            border: 2px solid white;
+            border-radius: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .android-badge.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .floating-keyboard-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 25px;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .cursor-pad {
+                width: 130px;
+                height: 130px;
+                bottom: 100px;
+                right: 20px;
+            }
+            
+            .fn-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                min-width: 35px;
+            }
         }
     </style>
 
@@ -24,11 +224,168 @@
 <body>
 
     <div id="dos" style="width: 100%; height: 100%"></div>
+    
+    <!-- Android Badge -->
+    <div class="android-badge" id="androidBadge">📱 Android Mode</div>
+    
+    <!-- Floating Keyboard Button -->
+    <div class="floating-keyboard-btn" id="keyboardBtn" onclick="toggleKeyboard()">⌨️</div>
+    
+    <!-- Cursor Pad -->
+    <div class="cursor-pad" id="cursorPad">
+        <div class="close-pad" onclick="toggleCursorPad()">✕</div>
+        <div class="pad-btn" onclick="sendKey('Up')">↑</div>
+        <div class="pad-btn" onclick="sendKey('Up')">↑</div>
+        <div class="pad-btn" onclick="sendKey('Up')">↑</div>
+        <div class="pad-btn" onclick="sendKey('Left')">←</div>
+        <div class="pad-btn" onclick="sendKey('Down')">↓</div>
+        <div class="pad-btn" onclick="sendKey('Right')">→</div>
+        <div class="pad-btn empty"></div>
+        <div class="pad-btn" onclick="sendKey('Down')">↓</div>
+        <div class="pad-btn empty"></div>
+    </div>
+    
+    <!-- Function Keys Row -->
+    <div class="function-keys" id="functionKeys">
+        <div class="fn-btn" onclick="sendKey('Escape')">Esc</div>
+        <div class="fn-btn" onclick="sendKey('F1')">F1</div>
+        <div class="fn-btn" onclick="sendKey('F2')">F2</div>
+        <div class="fn-btn" onclick="sendKey('F3')">F3</div>
+        <div class="fn-btn" onclick="sendKey('F4')">F4</div>
+        <div class="fn-btn" onclick="sendKey('F5')">F5</div>
+        <div class="fn-btn" onclick="sendKey('F6')">F6</div>
+        <div class="fn-btn" onclick="sendKey('F7')">F7</div>
+        <div class="fn-btn" onclick="sendKey('F8')">F8</div>
+        <div class="fn-btn" onclick="sendKey('F9')">F9</div>
+        <div class="fn-btn" onclick="sendKey('F10')">F10</div>
+        <div class="fn-btn special" onclick="sendKeyCombo('Alt', 'F9')">Alt+F9</div>
+        <div class="fn-btn special" onclick="sendKeyCombo('Ctrl', 'F9')">Ctrl+F9</div>
+        <div class="fn-btn special" onclick="sendKeyCombo('Alt', 'F5')">Alt+F5</div>
+        <div class="fn-btn" onclick="sendKey('Enter')">⏎</div>
+    </div>
 
     <script>
-        Dos(document.getElementById("dos"), {
-            //url: "https://v8.js-dos.com/bundles/digger.jsdos",
+        let dosInstance = null;
+        let keyboardVisible = false;
+        let isAndroid = false;
+        
+        // Detect Android
+        if (/Android/i.test(navigator.userAgent)) {
+            isAndroid = true;
+            document.getElementById('androidBadge').classList.add('show');
+            
+            // Prevent default touch behaviors
+            document.body.style.touchAction = 'none';
+        }
+        
+        // Initialize DOS
+        dosInstance = Dos(document.getElementById("dos"), {
+            onload: () => {
+                console.log('js-dos loaded');
+                if (isAndroid) {
+                    // Show keyboard controls hint
+                    setTimeout(() => {
+                        alert('📱 Android detected: Use floating buttons for keyboard and cursor');
+                    }, 1000);
+                }
+            },
+            onerror: (error) => {
+                console.error('js-dos error:', error);
+            }
         });
+        
+        function toggleKeyboard() {
+            const functionKeys = document.getElementById('functionKeys');
+            keyboardVisible = !keyboardVisible;
+            
+            if (keyboardVisible) {
+                functionKeys.classList.add('show');
+                document.getElementById('keyboardBtn').style.background = '#aa5500';
+            } else {
+                functionKeys.classList.remove('show');
+                document.getElementById('keyboardBtn').style.background = '#00aa00';
+            }
+        }
+        
+        function toggleCursorPad() {
+            const cursorPad = document.getElementById('cursorPad');
+            cursorPad.classList.toggle('show');
+        }
+        
+        function sendKey(key) {
+            if (!dosInstance) return;
+            
+            dosInstance.focus();
+            dosInstance.sendKey(key);
+            
+            // Vibrate on Android for feedback
+            if (isAndroid && navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+        
+        function sendKeyCombo(modifier, key) {
+            if (!dosInstance) return;
+            
+            dosInstance.focus();
+            
+            // Press modifier
+            dosInstance.sendKey(modifier);
+            
+            // Press key after short delay
+            setTimeout(() => {
+                dosInstance.sendKey(key);
+                
+                // Release modifier after another delay
+                setTimeout(() => {
+                    dosInstance.sendKey(modifier);
+                }, 150);
+            }, 100);
+            
+            if (isAndroid && navigator.vibrate) {
+                navigator.vibrate(20);
+            }
+        }
+        
+        // Long press on keyboard button toggles cursor pad
+        let pressTimer;
+        const keyboardBtn = document.getElementById('keyboardBtn');
+        
+        keyboardBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            pressTimer = setTimeout(() => {
+                toggleCursorPad();
+                if (navigator.vibrate) navigator.vibrate(30);
+            }, 500);
+        });
+        
+        keyboardBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            clearTimeout(pressTimer);
+        });
+        
+        keyboardBtn.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+            clearTimeout(pressTimer);
+        });
+        
+        // Prevent context menu on long press
+        document.addEventListener('contextmenu', (e) => {
+            if (isAndroid) e.preventDefault();
+        });
+        
+        // Handle back button on Android
+        if (isAndroid) {
+            window.addEventListener('popstate', () => {
+                // Minimize controls instead of going back
+                if (keyboardVisible) toggleKeyboard();
+                if (document.getElementById('cursorPad').classList.contains('show')) {
+                    toggleCursorPad();
+                }
+                history.pushState(null, null, location.href);
+            });
+            history.pushState(null, null, location.href);
+        }
     </script>
 </body>
 </html>
