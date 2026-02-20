@@ -1,0 +1,26 @@
+name: Rename File
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  rename-file:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Rename file
+      run: |
+        mv tc30 TURBOC3
+    
+    - name: Commit changes
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add .
+        git commit -m "Renamed file" || echo "No changes to commit"
+        git push
