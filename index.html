@@ -112,6 +112,8 @@
             padding: 10px;
             background: #001100;
             border: 2px solid #00aaaa;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
         }
         
         .error-panel {
@@ -157,7 +159,8 @@
             margin-top: 10px;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/js-dos@7.4.14/dist/js-dos.js"></script>
+    <!-- Use the correct js-dos CDN -->
+    <script src="https://js-dos.com/6.0.0/emulators/js-dos.js"></script>
 </head>
 <body>
     <div class="container">
@@ -190,9 +193,8 @@
     </div>
 
     <script>
-        let dosbox = null;
+        let emulator = null;
         let isLaunching = false;
-        let launchAttempts = 0;
         
         const statusEl = document.getElementById('statusMessage');
         const errorPanel = document.getElementById('errorPanel');
@@ -219,9 +221,11 @@
             updateStatus('Loading DOSBox emulator...');
             
             try {
-                const container = document.getElementById('dosbox');
+                // Create DOSBox instance using the global Dosbox constructor
+                const canvas = document.getElementById('dosbox');
                 
-                dosbox = new Dosbox(container, {
+                // The correct API for js-dos 6.0
+                emulator = new Dosbox(canvas, {
                     onload: function() {
                         updateStatus('DOSBox loaded successfully. Ready to launch Turbo C++.');
                         launchBtn.disabled = false;
@@ -229,25 +233,21 @@
                     },
                     onrun: function() {
                         updateStatus('DOSBox is running');
-                    },
-                    onerror: function(error) {
-                        console.error('DOSBox error:', error);
-                        showError('Failed to load DOSBox: ' + (error.message || 'Unknown error'));
-                        launchBtn.disabled = true;
                     }
                 });
                 
-                dosbox.run();
+                // Start the emulator
+                emulator.run();
                 
             } catch (e) {
                 console.error('Initialization error:', e);
-                showError('Failed to initialize DOSBox: ' + e.message);
+                showError('Failed to initialize DOSBox: ' + e.message + '\n\nPlease refresh the page.');
                 launchBtn.disabled = true;
             }
         });
         
         function launchTurboC() {
-            if (!dosbox) {
+            if (!emulator) {
                 showError('DOSBox not initialized. Please refresh the page.');
                 return;
             }
@@ -258,93 +258,74 @@
             }
             
             isLaunching = true;
-            launchAttempts++;
             launchBtn.disabled = true;
             hideError();
             
             updateStatus('Starting Turbo C++ launch sequence...');
             
-            // Step 1: Mount C drive
-            updateStatus('Step 1/4: Mounting C: drive...');
-            try {
-                dosbox.focus();
-                dosbox.sendString('mount c /tc30\n');
-            } catch (e) {
-                handleLaunchError('Failed to mount drive: ' + e.message);
-                return;
-            }
-            
-            // Step 2: Switch to C:
+            // Small delay to ensure DOSBox is ready
             setTimeout(() => {
-                updateStatus('Step 2/4: Switching to C: drive...');
                 try {
-                    dosbox.sendString('c:\n');
+                    // Step 1: Mount C drive
+                    updateStatus('Step 1/4: Mounting C: drive...');
+                    emulator.sendString('mount c /tc30\n');
+                    
+                    // Step 2: Switch to C:
+                    setTimeout(() => {
+                        updateStatus('Step 2/4: Switching to C: drive...');
+                        emulator.sendString('c:\n');
+                    }, 1500);
+                    
+                    // Step 3: Go to BIN directory
+                    setTimeout(() => {
+                        updateStatus('Step 3/4: Opening BIN directory...');
+                        emulator.sendString('cd tc30\\bin\n');
+                    }, 3000);
+                    
+                    // Step 4: Launch TC.EXE
+                    setTimeout(() => {
+                        updateStatus('Step 4/4: Launching Turbo C++...');
+                        emulator.sendString('tc.exe\n');
+                        
+                        // Check if it worked
+                        setTimeout(() => {
+                            updateStatus('Turbo C++ launched! If you see a blank screen, click inside the DOSBox window.');
+                            launchBtn.disabled = false;
+                            isLaunching = false;
+                        }, 3000);
+                        
+                    }, 4500);
+                    
                 } catch (e) {
-                    handleLaunchError('Failed to switch drive: ' + e.message);
-                }
-            }, 1500);
-            
-            // Step 3: Go to BIN directory
-            setTimeout(() => {
-                updateStatus('Step 3/4: Opening BIN directory...');
-                try {
-                    dosbox.sendString('cd tc30\\bin\n');
-                } catch (e) {
-                    handleLaunchError('Failed to open BIN directory: ' + e.message);
-                }
-            }, 3000);
-            
-            // Step 4: Launch TC.EXE
-            setTimeout(() => {
-                updateStatus('Step 4/4: Launching Turbo C++...');
-                try {
-                    dosbox.sendString('tc.exe\n');
-                } catch (e) {
-                    handleLaunchError('Failed to launch TC.EXE: ' + e.message);
-                    return;
-                }
-                
-                // Check if it worked after a delay
-                setTimeout(() => {
-                    updateStatus('Turbo C++ should now be running. If you see a blank screen, click inside DOSBox.');
+                    showError('Failed during launch: ' + e.message);
                     launchBtn.disabled = false;
                     isLaunching = false;
-                }, 3000);
+                }
                 
-            }, 4500);
+            }, 1000);
             
             // Timeout protection
             setTimeout(() => {
                 if (isLaunching) {
-                    handleLaunchError('Launch timeout - Check if TC.EXE exists in /tc30/BIN/ folder');
+                    showError('Launch timeout after 15 seconds.\n\nMake sure your folder structure is:\n/tc30/BIN/TC.EXE\n/tc30/INCLUDE/\n/tc30/LIB/');
+                    launchBtn.disabled = false;
+                    isLaunching = false;
                 }
-            }, 10000);
-        }
-        
-        function handleLaunchError(msg) {
-            showError(msg + '\n\nMake sure your folder structure is:\n/tc30/BIN/TC.EXE\n/tc30/INCLUDE/\n/tc30/LIB/');
-            launchBtn.disabled = false;
-            isLaunching = false;
+            }, 15000);
         }
         
         function toggleFullscreen() {
-            if (!dosbox) return;
+            if (!emulator) return;
             
             try {
-                dosbox.focus();
-                dosbox.keyDown('alt');
-                setTimeout(() => {
-                    dosbox.sendKey('enter');
-                    setTimeout(() => {
-                        dosbox.keyUp('alt');
-                    }, 200);
-                }, 200);
+                emulator.sendKey('alt', 'enter');
+                updateStatus('Toggled fullscreen mode');
             } catch (e) {
                 showError('Failed to toggle fullscreen: ' + e.message);
             }
         }
         
-        // Check Android for fullscreen hint
+        // Detect Android for status message
         if (/Android/i.test(navigator.userAgent)) {
             updateStatus('Android detected - Use fullscreen button for better view');
         }
