@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turbo C++ 3.0 REAL - Manual Mount Method</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0000aa;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .header {
+            background: #00aaaa;
+            color: black;
+            padding: 15px;
+            border: 3px solid white;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 5px 5px 0 black;
+        }
+        
+        .dosbox-container {
+            background: black;
+            border: 4px solid #00ffff;
+            padding: 0;
+            margin-bottom: 20px;
+            box-shadow: 8px 8px 0 black;
+        }
+        
+        #dosbox {
+            width: 100%;
+            height: 450px;
+            background: black;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .turbo-button {
+            background: #aaaaaa;
+            color: black;
+            border: 3px solid white;
+            padding: 12px 24px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0 black;
+            transition: 0.1s;
+            min-width: 140px;
+        }
+        
+        .turbo-button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 black;
+        }
+        
+        .turbo-button.green {
+            background: #00aa00;
+            color: white;
+        }
+        
+        .command-panel {
+            background: black;
+            color: #00ff00;
+            border: 4px solid #00ffff;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        .command-panel h3 {
+            color: #ffff00;
+            margin-bottom: 10px;
+        }
+        
+        .command-list {
+            background: #000000;
+            padding: 10px;
+            border: 2px solid #00aaaa;
+            margin: 10px 0;
+        }
+        
+        .command-list kbd {
+            background: #00aaaa;
+            color: black;
+            padding: 3px 8px;
+            border: 2px solid white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .command-list div {
+            margin: 8px 0;
+        }
+        
+        .status-bar {
+            background: #00aaaa;
+            color: black;
+            padding: 10px 15px;
+            border: 3px solid white;
+            margin-top: 15px;
+            font-weight: bold;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .warning {
+            background: #aa5500;
+            color: white;
+            padding: 10px;
+            border: 3px solid white;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+    <!-- Load js-dos from CDN -->
+    <script src="https://js-dos.com/cdn/js-dos.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span>🔷 TURBO C++ 3.0 - MANUAL MOUNT METHOD 🔷</span>
+            <span>📁 GITHUB PAGES READY</span>
+        </div>
+        
+        <div class="dosbox-container">
+            <div id="dosbox"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="turbo-button" onclick="mountAndStart()">📀 MOUNT & START</button>
+            <button class="turbo-button" onclick="sendCommand('mount c /tc30')">💾 MOUNT C:</button>
+            <button class="turbo-button" onclick="sendCommand('c:')">💿 SWITCH TO C:</button>
+            <button class="turbo-button" onclick="sendCommand('cd tc30\\bin')">📂 GO TO BIN</button>
+            <button class="turbo-button green" onclick="sendCommand('tc.exe')">🚀 LAUNCH TC++</button>
+            <button class="turbo-button" onclick="fullscreenDOS()">⛶ FULLSCREEN</button>
+        </div>
+        
+        <div class="command-panel">
+            <h3>📘 MANUAL COMMANDS (Type these in DOSBox)</h3>
+            <div class="command-list">
+                <div><kbd>Step 1</kbd> mount c /tc30</div>
+                <div><kbd>Step 2</kbd> c:</div>
+                <div><kbd>Step 3</kbd> cd tc30\bin</div>
+                <div><kbd>Step 4</kbd> tc.exe</div>
+            </div>
+            <p style="color: #ffff00; margin-top: 10px;">⚠️ First, you need to upload your Turbo C++ files to the /tc30 folder in your GitHub repo!</p>
+        </div>
+        
+        <div class="warning">
+            ⚡ CRITICAL: This method requires you to have the Turbo C++ 3.0 files in your repository under the "tc30" folder.
+            <br><br>
+            📁 Folder structure needed:
+            <pre style="background: black; color: #00ff00; padding: 10px; margin-top: 10px;">
+your-repo/
+├── index.html (this file)
+├── tc30/
+│   ├── BIN/
+│   │   ├── TC.EXE
+│   │   ├── TCC.EXE
+│   │   └── ...
+│   ├── INCLUDE/
+│   │   ├── IOSTREAM.H
+│   │   ├── CONIO.H
+│   │   └── ...
+│   └── LIB/
+│       ├── COS.OBJ
+│       └── ...
+└── projects/ (your code)
+            </pre>
+        </div>
+        
+        <div class="status-bar">
+            <span>🔧 Status: <span id="status">Waiting for DOSBox...</span></span>
+            <span>📀 Method: Manual Mount</span>
+            <span>💡 Tip: Click buttons to send commands</span>
+        </div>
+    </div>
+
+    <script>
+        let dosbox = null;
+        let emulator = null;
+        
+        // Initialize DOSBox
+        window.addEventListener('load', function() {
+            const statusEl = document.getElementById('status');
+            statusEl.innerText = 'Loading DOSBox...';
+            
+            Dosbox(document.getElementById('dosbox'), {
+                onload: function(instance) {
+                    dosbox = instance;
+                    emulator = instance;
+                    statusEl.innerText = 'Ready - Click buttons to send commands';
+                    console.log('DOSBox ready');
+                },
+                onerror: function(error) {
+                    statusEl.innerText = 'Error loading';
+                    console.error('DOSBox error:', error);
+                }
+            });
+        });
+        
+        // Send a command to DOSBox
+        function sendCommand(cmd) {
+            if (!dosbox) {
+                alert('DOSBox not ready yet. Please wait...');
+                return;
+            }
+            
+            // Focus DOSBox and send the command followed by Enter
+            dosbox.focus();
+            setTimeout(() => {
+                // Type the command character by character
+                for (let i = 0; i < cmd.length; i++) {
+                    setTimeout(() => {
+                        dosbox.sendKey(cmd[i]);
+                    }, i * 50);
+                }
+                // Press Enter after the command
+                setTimeout(() => {
+                    dosbox.sendKey('enter');
+                }, cmd.length * 50 + 100);
+            }, 200);
+            
+            document.getElementById('status').innerText = `Sent: ${cmd}`;
+        }
+        
+        // Execute the full sequence to mount and start Turbo C++
+        function mountAndStart() {
+            if (!dosbox) return;
+            
+            const commands = [
+                'mount c /tc30',
+                'c:',
+                'cd tc30\\bin',
+                'tc.exe'
+            ];
+            
+            let totalDelay = 0;
+            commands.forEach((cmd, index) => {
+                setTimeout(() => {
+                    sendCommand(cmd);
+                }, totalDelay);
+                totalDelay += cmd.length * 50 + 1000; // Command typing time + pause
+            });
+            
+            document.getElementById('status').innerText = 'Executing mount sequence...';
+        }
+        
+        // Toggle fullscreen (Alt+Enter)
+        function fullscreenDOS() {
+            if (!dosbox) return;
+            
+            dosbox.sendKey('alt', 100);
+            setTimeout(() => {
+                dosbox.sendKey('enter', 50);
+                setTimeout(() => {
+                    dosbox.sendKey('alt', 0, true);
+                }, 150);
+            }, 150);
+        }
+        
+        // Helper to type a full command at once (alternative method)
+        function typeCommand(cmd) {
+            if (!dosbox) return;
+            dosbox.focus();
+            setTimeout(() => {
+                dosbox.sendString(cmd + '\n');
+            }, 200);
+        }
+    </script>
+</body>
+</html>
