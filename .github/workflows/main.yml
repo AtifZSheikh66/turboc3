@@ -1,0 +1,25 @@
+name: Extract Zip to Root
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  extract-to-root:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install unzip
+      run: sudo apt-get update && sudo apt-get install -y unzip
+    
+    - name: Extract zip to root
+      run: |
+        # Extract directly to current directory (root of workspace)
+        unzip -o turboc3.zip
+    
+    - name: Show extracted files in root
+      run: ls -la
