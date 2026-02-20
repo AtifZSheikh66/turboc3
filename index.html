@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Turbo C++ - js-dos</title>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            background: #0000aa;
+            touch-action: pan-y pinch-zoom;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: none;
+            text-size-adjust: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #dos {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
+
+    <!-- js-dos stylesheet and script -->
+    <link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css">
+    <script src="https://v8.js-dos.com/latest/js-dos.js"></script>
+</head>
+<body>
+    <div id="dos"></div>
+
+    <script>
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+        
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('gesturechange', (e) => e.preventDefault());
+        document.addEventListener('gestureend', (e) => e.preventDefault());
+        
+        document.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_' || e.key === '0')) {
+                e.preventDefault();
+            }
+            if (e.metaKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '_')) {
+                e.preventDefault();
+            }
+            if (e.ctrlKey && e.key === '0') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        window.addEventListener('resize', () => {
+            document.querySelector('meta[name="viewport"]').setAttribute('content', 
+                'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no');
+        });
+        
+        // Initialize DOS with your bundle
+        Dos(document.getElementById("dos"), {
+            url: "./turboc.jsdos", // Path to your bundle
+            mouseSensitivity: 0.18,
+            onload: () => {
+                console.log('Turbo C++ loaded successfully');
+            },
+            onerror: (error) => {
+                console.error('Error loading Turbo C++:', error);
+            }
+        });
+    </script>
+</body>
+</html>
