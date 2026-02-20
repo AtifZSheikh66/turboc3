@@ -1,4 +1,4 @@
-name: Extract Zip to Root
+name: Extract Zip to Root and Commit
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  extract-to-root:
+  extract-and-commit:
     runs-on: ubuntu-latest
     
     steps:
@@ -18,8 +18,15 @@ jobs:
     
     - name: Extract zip to root
       run: |
-        # Extract directly to current directory (root of workspace)
+        # Extract directly to current directory
         unzip -o tc30.zip
+        echo "Extracted files:"
+        ls -la
     
-    - name: Show extracted files in root
-      run: ls -la
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add .
+        git commit -m "Extracted zip files" || echo "No changes to commit"
+        git push
