@@ -1,9 +1,12 @@
-name: Extract and Commit with PAT
+name: Extract and Commit
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
+permissions:
+  contents: write  # Explicitly grant write permission
 
 jobs:
   extract-and-commit:
@@ -12,8 +15,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PAT_TOKEN }}  # Use PAT instead of default token
     
     - name: Install unzip
       run: sudo apt-get update && sudo apt-get install -y unzip
@@ -25,8 +26,8 @@ jobs:
     
     - name: Commit and push changes
       run: |
-        git config --global user.name 'Your Name'
-        git config --global user.email 'your-email@example.com'
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
         git add .
         git diff --quiet && git diff --staged --quiet || git commit -m "Extracted zip files"
         git push
