@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turbo C++ 3.0 REAL - Manual Mount Method</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Turbo C++ 3.0 REAL - Working DOSBox</title>
     <style>
         * {
             margin: 0;
@@ -15,10 +15,10 @@
             background: #0000aa;
             font-family: 'Courier New', Courier, monospace;
             padding: 20px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
         }
         
         .container {
@@ -45,12 +45,15 @@
             padding: 0;
             margin-bottom: 20px;
             box-shadow: 8px 8px 0 black;
-        }
-        
-        #dosbox {
+            position: relative;
             width: 100%;
             height: 450px;
-            background: black;
+        }
+        
+        .dosbox-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
         }
         
         .controls {
@@ -65,7 +68,7 @@
             background: #aaaaaa;
             color: black;
             border: 3px solid white;
-            padding: 12px 24px;
+            padding: 12px 20px;
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
             font-size: 16px;
@@ -73,7 +76,7 @@
             text-transform: uppercase;
             box-shadow: 4px 4px 0 black;
             transition: 0.1s;
-            min-width: 140px;
+            min-width: 120px;
         }
         
         .turbo-button:active {
@@ -86,16 +89,20 @@
             color: white;
         }
         
-        .command-panel {
+        .turbo-button.yellow {
+            background: #cccc00;
+            color: black;
+        }
+        
+        .info-box {
             background: black;
             color: #00ff00;
             border: 4px solid #00ffff;
             padding: 15px;
             margin: 15px 0;
-            font-family: 'Courier New', Courier, monospace;
         }
         
-        .command-panel h3 {
+        .info-box h3 {
             color: #ffff00;
             margin-bottom: 10px;
         }
@@ -107,17 +114,20 @@
             margin: 10px 0;
         }
         
+        .command-list div {
+            margin: 8px 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
         .command-list kbd {
             background: #00aaaa;
             color: black;
             padding: 3px 8px;
             border: 2px solid white;
             font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        .command-list div {
-            margin: 8px 0;
+            margin-right: 15px;
+            display: inline-block;
+            min-width: 80px;
         }
         
         .status-bar {
@@ -128,64 +138,117 @@
             margin-top: 15px;
             font-weight: bold;
             display: flex;
-            gap: 30px;
+            gap: 20px;
             flex-wrap: wrap;
         }
         
-        .warning {
-            background: #aa5500;
-            color: white;
-            padding: 10px;
-            border: 3px solid white;
+        .android-controls {
+            display: none;
+            gap: 8px;
+            flex-wrap: wrap;
             margin: 10px 0;
+            padding: 10px;
+            background: #aa5500;
+            border: 3px solid white;
+        }
+        
+        .android-controls button {
+            background: #00aaaa;
+            color: black;
+            border: 2px solid white;
+            padding: 10px 15px;
             font-weight: bold;
+            cursor: pointer;
+            min-width: 70px;
+        }
+        
+        @media (max-width: 600px) {
+            .android-controls {
+                display: flex;
+            }
+            .dosbox-container {
+                height: 300px;
+            }
+            .turbo-button {
+                padding: 10px 12px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+        }
+        
+        .file-structure {
+            background: #000000;
+            color: #00ff00;
+            padding: 15px;
+            border: 2px solid #00ffff;
+            margin-top: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre;
+            overflow-x: auto;
         }
     </style>
-    <!-- Load js-dos from CDN -->
-    <script src="https://js-dos.com/cdn/js-dos.js"></script>
+    <!-- Load the correct js-dos library -->
+    <script src="https://cdn.jsdelivr.net/npm/js-dos@7.4.14/dist/js-dos.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <span>🔷 TURBO C++ 3.0 - MANUAL MOUNT METHOD 🔷</span>
-            <span>📁 GITHUB PAGES READY</span>
+            <span>🔷 TURBO C++ 3.0 - WORKING DOSBOX 🔷</span>
+            <span id="deviceType">DESKTOP</span>
         </div>
         
+        <!-- DOSBox container - this is where the emulator renders -->
         <div class="dosbox-container">
             <div id="dosbox"></div>
         </div>
         
+        <!-- Android-specific controls (visible only on mobile) -->
+        <div class="android-controls" id="androidControls">
+            <button onclick="sendSpecialKey('f1')">F1</button>
+            <button onclick="sendSpecialKey('f2')">F2</button>
+            <button onclick="sendSpecialKey('f3')">F3</button>
+            <button onclick="sendSpecialKey('f4')">F4</button>
+            <button onclick="sendSpecialKey('f5')">F5</button>
+            <button onclick="sendSpecialKey('f6')">F6</button>
+            <button onclick="sendSpecialKey('f7')">F7</button>
+            <button onclick="sendSpecialKey('f8')">F8</button>
+            <button onclick="sendSpecialKey('f9')">F9</button>
+            <button onclick="sendSpecialKey('f10')">F10</button>
+            <button onclick="sendSpecialKey('alt+f9')">Alt+F9</button>
+            <button onclick="sendSpecialKey('ctrl+f9')">Ctrl+F9</button>
+            <button onclick="sendSpecialKey('alt+f5')">Alt+F5</button>
+        </div>
+        
+        <!-- Main control buttons -->
         <div class="controls">
             <button class="turbo-button" onclick="mountAndStart()">📀 MOUNT & START</button>
             <button class="turbo-button" onclick="sendCommand('mount c /tc30')">💾 MOUNT C:</button>
-            <button class="turbo-button" onclick="sendCommand('c:')">💿 SWITCH TO C:</button>
-            <button class="turbo-button" onclick="sendCommand('cd tc30\\bin')">📂 GO TO BIN</button>
+            <button class="turbo-button" onclick="sendCommand('c:')">💿 GO TO C:</button>
+            <button class="turbo-button" onclick="sendCommand('cd tc30\\bin')">📂 OPEN BIN</button>
             <button class="turbo-button green" onclick="sendCommand('tc.exe')">🚀 LAUNCH TC++</button>
-            <button class="turbo-button" onclick="fullscreenDOS()">⛶ FULLSCREEN</button>
+            <button class="turbo-button yellow" onclick="fullscreen()">⛶ FULLSCREEN</button>
+            <button class="turbo-button" onclick="resetDOSBox()">🔄 RESET</button>
         </div>
         
-        <div class="command-panel">
-            <h3>📘 MANUAL COMMANDS (Type these in DOSBox)</h3>
+        <!-- Instructions panel -->
+        <div class="info-box">
+            <h3>📘 HOW TO USE - REAL TURBO C++ 3.0</h3>
             <div class="command-list">
-                <div><kbd>Step 1</kbd> mount c /tc30</div>
-                <div><kbd>Step 2</kbd> c:</div>
-                <div><kbd>Step 3</kbd> cd tc30\bin</div>
-                <div><kbd>Step 4</kbd> tc.exe</div>
+                <div><kbd>STEP 1</kbd> Click "MOUNT & START" or type: <strong>mount c /tc30</strong></div>
+                <div><kbd>STEP 2</kbd> Type: <strong>c:</strong> (press Enter)</div>
+                <div><kbd>STEP 3</kbd> Type: <strong>cd tc30\bin</strong> (press Enter)</div>
+                <div><kbd>STEP 4</kbd> Type: <strong>tc.exe</strong> (press Enter)</div>
             </div>
-            <p style="color: #ffff00; margin-top: 10px;">⚠️ First, you need to upload your Turbo C++ files to the /tc30 folder in your GitHub repo!</p>
-        </div>
-        
-        <div class="warning">
-            ⚡ CRITICAL: This method requires you to have the Turbo C++ 3.0 files in your repository under the "tc30" folder.
-            <br><br>
-            📁 Folder structure needed:
-            <pre style="background: black; color: #00ff00; padding: 10px; margin-top: 10px;">
+            
+            <h3 style="color: #ffff00; margin-top: 15px;">⚠️ CRITICAL - FILE STRUCTURE REQUIRED</h3>
+            <div class="file-structure">
 your-repo/
 ├── index.html (this file)
 ├── tc30/
 │   ├── BIN/
 │   │   ├── TC.EXE
 │   │   ├── TCC.EXE
+│   │   ├── TLINK.EXE
 │   │   └── ...
 │   ├── INCLUDE/
 │   │   ├── IOSTREAM.H
@@ -194,68 +257,137 @@ your-repo/
 │   └── LIB/
 │       ├── COS.OBJ
 │       └── ...
-└── projects/ (your code)
-            </pre>
+            </div>
         </div>
         
+        <!-- Status bar -->
         <div class="status-bar">
-            <span>🔧 Status: <span id="status">Waiting for DOSBox...</span></span>
-            <span>📀 Method: Manual Mount</span>
-            <span>💡 Tip: Click buttons to send commands</span>
+            <span>📟 Status: <span id="status">Initializing...</span></span>
+            <span>💾 Files needed: /tc30/BIN/TC.EXE</span>
+            <span>📱 Android: <span id="androidStatus">Detecting...</span></span>
         </div>
     </div>
 
     <script>
+        // Global variables
         let dosbox = null;
-        let emulator = null;
+        let isAndroid = false;
         
-        // Initialize DOSBox
+        // Detect Android
+        if (/Android/i.test(navigator.userAgent)) {
+            isAndroid = true;
+            document.getElementById('deviceType').innerText = 'ANDROID MODE';
+            document.getElementById('androidStatus').innerText = 'Active - Special keys shown';
+            document.getElementById('androidControls').style.display = 'flex';
+        } else {
+            document.getElementById('androidStatus').innerText = 'Not detected';
+        }
+        
+        // Initialize DOSBox with correct API
         window.addEventListener('load', function() {
             const statusEl = document.getElementById('status');
             statusEl.innerText = 'Loading DOSBox...';
             
-            Dosbox(document.getElementById('dosbox'), {
-                onload: function(instance) {
-                    dosbox = instance;
-                    emulator = instance;
-                    statusEl.innerText = 'Ready - Click buttons to send commands';
-                    console.log('DOSBox ready');
+            // Get the container element
+            const container = document.getElementById('dosbox');
+            
+            // Create DOSBox instance using the correct API
+            dosbox = new Dosbox(container, {
+                onload: function() {
+                    statusEl.innerText = 'DOSBox Ready - Click buttons to start';
+                    console.log('DOSBox loaded successfully');
+                    
+                    // Focus the emulator
+                    setTimeout(() => {
+                        if (dosbox) {
+                            dosbox.focus();
+                        }
+                    }, 500);
+                },
+                onrun: function() {
+                    statusEl.innerText = 'DOSBox Running';
                 },
                 onerror: function(error) {
-                    statusEl.innerText = 'Error loading';
+                    statusEl.innerText = 'Error loading DOSBox';
                     console.error('DOSBox error:', error);
                 }
             });
+            
+            // Start the emulator
+            dosbox.run();
         });
         
         // Send a command to DOSBox
         function sendCommand(cmd) {
             if (!dosbox) {
-                alert('DOSBox not ready yet. Please wait...');
+                alert('DOSBox is still loading. Please wait...');
                 return;
             }
             
-            // Focus DOSBox and send the command followed by Enter
-            dosbox.focus();
-            setTimeout(() => {
-                // Type the command character by character
-                for (let i = 0; i < cmd.length; i++) {
-                    setTimeout(() => {
-                        dosbox.sendKey(cmd[i]);
-                    }, i * 50);
-                }
-                // Press Enter after the command
-                setTimeout(() => {
-                    dosbox.sendKey('enter');
-                }, cmd.length * 50 + 100);
-            }, 200);
-            
-            document.getElementById('status').innerText = `Sent: ${cmd}`;
+            try {
+                dosbox.focus();
+                // Type the command and press Enter
+                dosbox.sendString(cmd + '\n');
+                document.getElementById('status').innerText = `Sent: ${cmd}`;
+            } catch (e) {
+                console.error('Error sending command:', e);
+                alert('Error sending command. Try clicking inside DOSBox first.');
+            }
         }
         
-        // Execute the full sequence to mount and start Turbo C++
+        // Send special key combinations (for Android)
+        function sendSpecialKey(keyCombo) {
+            if (!dosbox) return;
+            
+            dosbox.focus();
+            
+            switch(keyCombo) {
+                case 'f9':
+                    dosbox.sendKey('f9');
+                    break;
+                case 'alt+f9':
+                    // Alt+F9 for compile
+                    dosbox.keyDown('alt');
+                    setTimeout(() => {
+                        dosbox.sendKey('f9');
+                        setTimeout(() => {
+                            dosbox.keyUp('alt');
+                        }, 200);
+                    }, 200);
+                    break;
+                case 'ctrl+f9':
+                    // Ctrl+F9 for run
+                    dosbox.keyDown('ctrl');
+                    setTimeout(() => {
+                        dosbox.sendKey('f9');
+                        setTimeout(() => {
+                            dosbox.keyUp('ctrl');
+                        }, 200);
+                    }, 200);
+                    break;
+                case 'alt+f5':
+                    // Alt+F5 for output screen
+                    dosbox.keyDown('alt');
+                    setTimeout(() => {
+                        dosbox.sendKey('f5');
+                        setTimeout(() => {
+                            dosbox.keyUp('alt');
+                        }, 200);
+                    }, 200);
+                    break;
+                default:
+                    dosbox.sendKey(keyCombo);
+            }
+            
+            document.getElementById('status').innerText = `Key: ${keyCombo}`;
+        }
+        
+        // Full mount and start sequence
         function mountAndStart() {
             if (!dosbox) return;
+            
+            const statusEl = document.getElementById('status');
+            statusEl.innerText = 'Executing mount sequence...';
             
             const commands = [
                 'mount c /tc30',
@@ -264,37 +396,64 @@ your-repo/
                 'tc.exe'
             ];
             
-            let totalDelay = 0;
+            let delay = 0;
             commands.forEach((cmd, index) => {
                 setTimeout(() => {
-                    sendCommand(cmd);
-                }, totalDelay);
-                totalDelay += cmd.length * 50 + 1000; // Command typing time + pause
+                    dosbox.sendString(cmd + '\n');
+                    statusEl.innerText = `Executed: ${cmd}`;
+                }, delay);
+                delay += 2000; // 2 second delay between commands
             });
             
-            document.getElementById('status').innerText = 'Executing mount sequence...';
+            setTimeout(() => {
+                statusEl.innerText = 'Turbo C++ should be starting...';
+            }, delay);
         }
         
-        // Toggle fullscreen (Alt+Enter)
-        function fullscreenDOS() {
+        // Fullscreen toggle
+        function fullscreen() {
             if (!dosbox) return;
             
-            dosbox.sendKey('alt', 100);
+            dosbox.focus();
+            dosbox.keyDown('alt');
             setTimeout(() => {
-                dosbox.sendKey('enter', 50);
+                dosbox.sendKey('enter');
                 setTimeout(() => {
-                    dosbox.sendKey('alt', 0, true);
-                }, 150);
-            }, 150);
+                    dosbox.keyUp('alt');
+                }, 200);
+            }, 200);
         }
         
-        // Helper to type a full command at once (alternative method)
-        function typeCommand(cmd) {
+        // Reset DOSBox
+        function resetDOSBox() {
             if (!dosbox) return;
-            dosbox.focus();
+            
+            if (confirm('Reset DOSBox? Any unsaved work will be lost.')) {
+                dosbox.stop();
+                setTimeout(() => {
+                    dosbox.run();
+                    document.getElementById('status').innerText = 'DOSBox reset';
+                }, 1000);
+            }
+        }
+        
+        // Helper function to type longer strings
+        function typeString(str) {
+            if (!dosbox) return;
+            
+            for (let i = 0; i < str.length; i++) {
+                setTimeout(() => {
+                    dosbox.sendKey(str[i]);
+                }, i * 100);
+            }
             setTimeout(() => {
-                dosbox.sendString(cmd + '\n');
-            }, 200);
+                dosbox.sendKey('enter');
+            }, str.length * 100 + 200);
+        }
+        
+        // Check if TC.EXE exists (just a helper message)
+        function checkFiles() {
+            alert('Make sure you have the tc30 folder with BIN, INCLUDE, and LIB subfolders in your GitHub repository.');
         }
     </script>
 </body>
