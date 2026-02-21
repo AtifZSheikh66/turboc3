@@ -2,6 +2,8 @@
 
 A web-based Turbo C++ IDE running in your browser using DOSBox emulation. Write and compile C++ code from anywhere, on any device!
 
+Storage functionality will be added in future.
+
 ✨ Features
 
 · Full Turbo C++ 3.0 Environment - Complete IDE with compiler
