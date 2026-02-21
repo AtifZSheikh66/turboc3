@@ -2,8 +2,6 @@ Turbo C++ in Browser 🚀
 
 A web-based Turbo C++ IDE running in your browser using DOSBox emulation. Write and compile C++ code from anywhere, on any device!
 
-
-
 ✨ Features
 
 · Full Turbo C++ 3.0 Environment - Complete IDE with compiler
@@ -14,7 +12,7 @@ A web-based Turbo C++ IDE running in your browser using DOSBox emulation. Write 
 
 🎮 Virtual Keyboard Layout
 
-The on-screen keyboard features three layers for complete access to all Turbo C++ keys:
+The on-screen keyboard features three layers for complete access to all keys:
 
 Layer 0 - Main Keyboard
 
@@ -43,9 +41,10 @@ Layer 2 - Uppercase Letters (Â to access)
 
 1. Open the website - Navigate to your hosted page
 2. Wait for loading - DOSBox and Turbo C++ will load automatically
-3. Start coding - Use physical keyboard or on-screen keyboard
-4. Compile & Run - Press Ctrl+F9 to compile and run
-5. View Output - Alt+F5 to view output screen
+3. Tap the play button.
+4. Start coding - Use physical keyboard or on-screen keyboard
+5. Compile & Run - Press Ctrl+F9 to compile and run
+6. View Output - Alt+F5 to view output screen
 
 💻 Usage Tips
 
@@ -66,7 +65,7 @@ Touch/Mobile Users
    · ↑ - For symbols and special characters
    · Â - For uppercase letters
    · ↓ - To return to main keyboard
-3. The Options (⚙) button provides additional settings
+
 
 🔧 Technical Details
 
@@ -109,33 +108,6 @@ The application shows:
 · Turbo C++ loading screen
 · Ready state when IDE is fully loaded
 
-⚙️ Installation (Self-Hosting)
-
-1. Clone the repository
-2. Ensure all files are in place
-3. Host on any static web server
-4. No build process required - pure HTML/JavaScript
-
-```bash
-git clone https://github.com/yourusername/turbo-cpp-browser.git
-cd turbo-cpp-browser
-# Host with any static server, e.g.:
-python -m http.server 8000
-```
-
-🤝 Contributing
-
-Contributions welcome! Areas for improvement:
-
-· Additional keyboard layouts
-· Better mobile optimization
-· File save/load functionality
-· Dark/light themes
-· Performance optimizations
-
-📝 License
-
-MIT License - feel free to use for educational purposes
 
 ⚠️ Note
 
