@@ -1,4 +1,4 @@
-##*Turbo C++ in Browser 🚀*
+## **Turbo C++ in Browser 🚀**
 
 A web-based Turbo C++ IDE running in your browser using DOSBox emulation. Write and compile C++ code from anywhere, on any device!
 
